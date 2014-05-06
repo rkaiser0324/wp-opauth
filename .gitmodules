@@ -1,6 +1,6 @@
 [submodule "opauth"]
 	path = opauth
-	url = https://github.com/opauth/opauth.git
+	url = git@github.com:rkaiser0324/opauth.git
 [submodule "strategies/behance"]
 	path = strategies/behance
 	url = https://github.com/markusbegiebing/opauth-behance.git
