@@ -222,6 +222,7 @@ class WPOpauth
 
 		$response = unserialize(base64_decode($_POST['opauth']));
 
+
 		if (array_key_exists('error', $response))
 		{
 			wp_redirect(wp_login_url());
@@ -333,11 +334,8 @@ class WPOpauth
                 $user['last_name'] = $response['auth']['info']['last_name'];
                 $user['user_email'] = $response['auth']['info']['email'];
                 
-                // Set the plaintext, unhashed password to the username
-		$user['user_pass'] = $username; 
-
-                 //               var_dump($response);
-                //var_dump($user);
+				// Garbage - this is never used in practice
+                $user['user_pass'] = self::generateRandomSalt(12, 16);
 
                 // Just as in themes/kallyas/functions.php:3481
                 $_POST['user_login'] = $user['user_login'];
