@@ -73,6 +73,7 @@ class WPOpauth
 
 		if (sizeof($config['Strategy']))
 		{
+                    // TODO - this is ugly
 			add_action('login_form', array($this, 'loginForm'));
 			add_action('init', array($this, 'init'));
 		}
@@ -315,8 +316,7 @@ class WPOpauth
 
 		$table = self::getUserTableName();
 
-		$name = self::getName($response);
-		$prefix = self::getUsername($name);
+		$prefix = sanitize_user($response['auth']['info']['nickname']);
 		$suffix = '';
 		$username = '';
 
@@ -327,16 +327,22 @@ class WPOpauth
 
 		$user = array();
 		$user['user_login'] = $username;
-		$user['first_name'] = $name;
-		$user['user_pass'] = self::generateRandomSalt(12, 16);
-		/* The email has to be set. Otherwise users get incoherent error
-		 * messages when trying to update their profile. */
-		$user['user_email'] =
-			(array_key_exists('email', $response['auth']['info'])
-			 && $response['auth']['info']['email']?
-			 $response['auth']['info']['email'] :
-			 WPOPAUTH_INVALID_EMAIL . $username);
+		$user['display_name'] = self::getName($response);
+                $user['first_name'] = $response['auth']['info']['first_name'];
+                $user['last_name'] = $response['auth']['info']['last_name'];
+                
+                // Set the plaintext, unhashed password to the username
+		$user['user_pass'] = $username; 
+		$user['user_email'] = $response['auth']['info']['email'];
 
+                 //               var_dump($response);
+                //var_dump($user);
+
+                // Just as in themes/kallyas/functions.php:3481
+                $_POST['user_login'] = $user['user_login'];
+                $_POST['user_firstname'] = $user['first_name'];
+                $_POST['user_lastname'] = $user['last_name'];
+                
 		$uid = wp_insert_user($user);
 
 		if (is_wp_error($uid))
@@ -344,10 +350,8 @@ class WPOpauth
 			return $uid;
 		}
 
-		if ($this->emailNewAccounts)
-		{
-			self::emailUserInformation($user);
-		}
+                // Just as in themes/kallyas/functions.php:3481
+                wp_new_user_notification( $uid, $user['user_pass'], 'Facebook');
 
 		$wpdb->replace($table,
 				array(
