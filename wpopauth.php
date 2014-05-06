@@ -73,8 +73,6 @@ class WPOpauth
 
 		if (sizeof($config['Strategy']))
 		{
-                    // TODO - this is ugly
-			add_action('login_form', array($this, 'loginForm'));
 			add_action('init', array($this, 'init'));
 		}
 		add_action('network_admin_menu', array($this, 'networkAdminMenu'));
