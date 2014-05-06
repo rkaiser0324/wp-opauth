@@ -237,10 +237,14 @@ class WPOpauth
 
 		$uid = self::getUserID($response);
 
+                $redirect_url = '/';
+                
 		/* Check if the user was deleted */
+                
 		if ($uid === null || get_userdata($uid) === false)
 		{
 			$uid = $this->createUser($response);
+                        $redirect_url = '/subscriptions/welcome-flash/';
 		}
 
 		if (is_wp_error($uid))
@@ -253,8 +257,7 @@ class WPOpauth
 
 		self::loginAs($uid);
 
-		wp_redirect(
-				site_url($this->opauth->config['path'] . WPOPAUTH_REDIRECT_STRATEGY));
+                wp_redirect($redirect_url);
 	}
 
 	public static function redirectWithPost($url, $post)
@@ -330,10 +333,10 @@ class WPOpauth
 		$user['display_name'] = self::getName($response);
                 $user['first_name'] = $response['auth']['info']['first_name'];
                 $user['last_name'] = $response['auth']['info']['last_name'];
+                $user['user_email'] = $response['auth']['info']['email'];
                 
                 // Set the plaintext, unhashed password to the username
 		$user['user_pass'] = $username; 
-		$user['user_email'] = $response['auth']['info']['email'];
 
                  //               var_dump($response);
                 //var_dump($user);
