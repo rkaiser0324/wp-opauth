@@ -7,7 +7,7 @@ $config = array(
 	'path' => preg_replace('/^' . preg_quote(site_url(), '/') . '/',
 			'', plugins_url()) . "/wp-opauth/auth/",
 	'callback_url' => preg_replace('/^' . preg_quote(site_url(), '/') . '/',
-			'', plugins_url()) . "/wp-opauth/auth/callback.php",
+			'', plugins_url()) . "/wp-opauth/auth/callback",
 	'callback_transport' => 'post',
 	'strategy_dir' => WPOPAUTH_PATH . DIRECTORY_SEPARATOR
 		. 'strategies' .  DIRECTORY_SEPARATOR,

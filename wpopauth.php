@@ -73,6 +73,7 @@ class WPOpauth
 
 		if (sizeof($config['Strategy']))
 		{
+			add_action('login_form', array($this, 'loginForm'));
 			add_action('init', array($this, 'init'));
 		}
 		add_action('network_admin_menu', array($this, 'networkAdminMenu'));
@@ -115,6 +116,7 @@ class WPOpauth
 
 	public function loginForm()
 	{
+
 		$strategies = $this->getStrategies();
 
 		if ($this->areButtonsOutside)
@@ -181,6 +183,7 @@ class WPOpauth
 					die;
 				}
 			}
+
 			$this->callback();
 			die;
 		}
@@ -222,7 +225,6 @@ class WPOpauth
 
 		$response = unserialize(base64_decode($_POST['opauth']));
 
-
 		if (array_key_exists('error', $response))
 		{
 			wp_redirect(wp_login_url());
@@ -243,7 +245,7 @@ class WPOpauth
 		if ($uid === null || get_userdata($uid) === false)
 		{
 			$uid = $this->createUser($response);
-                        $redirect_url = '/subscriptions/welcome-flash/';
+			$redirect_url = '/welcome';
 		}
 
 		if (is_wp_error($uid))
@@ -326,21 +328,18 @@ class WPOpauth
 		{
 			$username = $prefix . $suffix++;
 		} while (username_exists($username));
-
+                
 		$user = array();
 		$user['user_login'] = $username;
 		$user['display_name'] = self::getName($response);
                 $user['first_name'] = $response['auth']['info']['first_name'];
                 $user['last_name'] = $response['auth']['info']['last_name'];
+                $user['thumbnail_url'] = empty($response['auth']['info']['image']) ? '' : $response['auth']['info']['image'];
                 $user['user_email'] = $response['auth']['info']['email'];
                 
 				// Garbage - this is never used in practice
                 $user['user_pass'] = self::generateRandomSalt(12, 16);
 
-                // Just as in themes/kallyas/functions.php:3481
-                $_POST['user_login'] = $user['user_login'];
-                $_POST['user_firstname'] = $user['first_name'];
-                $_POST['user_lastname'] = $user['last_name'];
                 
 		$uid = wp_insert_user($user);
 
@@ -350,7 +349,8 @@ class WPOpauth
 		}
 
                 // Just as in themes/kallyas/functions.php:3481
-                wp_new_user_notification( $uid, $user['user_pass'], 'Facebook');
+				// TODO update for Winecountry
+                //wp_new_user_notification( $uid, $user['user_pass'], 'Facebook');
 
 		$wpdb->replace($table,
 				array(
