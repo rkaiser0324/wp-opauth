@@ -334,7 +334,7 @@ class WPOpauth
 		$user['display_name'] = self::getName($response);
                 $user['first_name'] = $response['auth']['info']['first_name'];
                 $user['last_name'] = $response['auth']['info']['last_name'];
-                $user['thumbnail_url'] = empty($response['auth']['info']['image']) ? '' : $response['auth']['info']['image'];
+                
                 $user['user_email'] = $response['auth']['info']['email'];
                 
 				// Garbage - this is never used in practice
@@ -359,6 +359,9 @@ class WPOpauth
 					'local_id' => $uid
 				)
 		);
+                
+                $thumbnail_url = empty($response['auth']['info']['image']) ? '' : $response['auth']['info']['image'];
+                update_user_meta($uid, 'thumbnail_url', $thumbnail_url);
 
 		return $uid;
 	}
