@@ -320,7 +320,10 @@ class WPOpauth
 
 		$table = self::getUserTableName();
 
-		$prefix = sanitize_user($response['auth']['info']['nickname']);
+                // Facebook gives a nickname, Google does not
+                $nickname = empty($response['auth']['info']['nickname']) ? $response['auth']['info']['first_name'] : $response['auth']['info']['nickname'];
+
+		$prefix = sanitize_user($nickname);
 		$suffix = '';
 		$username = '';
 
@@ -339,7 +342,6 @@ class WPOpauth
                 
 				// Garbage - this is never used in practice
                 $user['user_pass'] = self::generateRandomSalt(12, 16);
-
                 
 		$uid = wp_insert_user($user);
 
